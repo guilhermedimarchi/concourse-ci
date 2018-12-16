@@ -24,6 +24,8 @@ jobs:
   plan:
   - get: java-source-master
     trigger: true
+  - get: ci-source
+    trigger: true
   - task: build-and-unit-test
     file: ci-source/tasks/build-java.yml
     input_mapping:
