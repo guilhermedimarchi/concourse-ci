@@ -1,0 +1,37 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: openjdk
+
+params:
+  IMAGE_NAME: required
+
+inputs:
+- name: java-source
+- name: ci-source
+
+outputs:
+- name: build-output
+
+run:
+  path: sh
+  user: root
+  args:
+  - -ec
+  - |
+    SOURCE_FOLDER=`pwd`/java-source
+    OUTPUT_FOLDER=`pwd`/build-output
+    # Build the application JAR files and place it in the output folder
+    bash \
+        -e \
+        -v \
+        ci-source/tasks/scripts/build-java.sh  \
+            $SOURCE_FOLDER      \
+            $OUTPUT_FOLDER
+
+caches:
+  - path: .gradle/
+  - path: .m2/
+  - path: .ivy/

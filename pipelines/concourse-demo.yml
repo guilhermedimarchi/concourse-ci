@@ -2,6 +2,7 @@
 #####################################################################################
 # Global variables
 project_git_url: &__PROJECT_GIT_URL__ https://github.com/guilhermedimarchi/concourse-demo
+ci_git_url: &__CI_GIT_URL__ https://github.com/guilhermedimarchi/concourse-ci
 master_branch: &__master_branch__ master
 #####################################################################################
 
@@ -12,21 +13,22 @@ resources:
     uri: *__PROJECT_GIT_URL__
     branch: *__master_branch__
 
+- name: ci-source
+  type: git
+  source:
+    uri: *__CI_GIT_URL__
+    branch: master
+
 jobs:
-- name: Run-automatically
+- name: Build
   plan:
   - get: java-source-master
     trigger: true
-  - task: simple-console-log
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: ubuntu
-      run:
-        path: sh
-        args:
-        - -exc
-        - |
-          echo "This job is automatically triggered upon any version change in the resource."
+  - task: build-and-unit-test
+    file: ci-source/tasks/build-java.yml
+    input_mapping:
+      java-source: java-source-master
+      ci-source: ci-source
+    output_mapping:
+      build-output: build-output
+
